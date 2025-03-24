@@ -6,6 +6,8 @@
 /node_modules
 /build
 
+.env
+
 # Logs
 logs
 *.log

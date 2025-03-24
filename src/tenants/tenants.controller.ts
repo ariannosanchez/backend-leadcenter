@@ -13,6 +13,11 @@ export class TenantController {
     return this.tenantService.create(createTenantDto);
   }
 
+  @Post('create-company')
+  async createCompany(@Body() createTenantDto: CreateTenantDto) {
+    return this.tenantService.createCompany(createTenantDto);
+  }
+
   @Get()
   findAll() {
     return this.tenantService.findAll();

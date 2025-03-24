@@ -1,3 +1,6 @@
+
+version: '3'
+
 services:
   db:
     image: mongo:5
@@ -8,33 +11,31 @@ services:
     ports:
       - "27017:27017"  # 🔹 Exponemos para conectar desde Compass o Robo 3T
     volumes:
-      - mongo-data:/data/db
-    networks:
-      - app-network
+      - ./mongo:/data/db
 
-  backend:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev  # 🔹 Usamos un Dockerfile especial para desarrollo
-    container_name: nest_leadcenter
-    restart: always
-    depends_on:
-      - db
-    ports:
-      - "3000:3000"
-    environment:
-      NODE_ENV: development
-      MONGO_URI: "mongodb://db:27017/leadcenter"
-      PORT: "3000"
-    volumes:
-      - .:/app  # 🔹 Montamos el código fuente para ver cambios sin reconstruir
-      - /app/node_modules
-    command: npm run start:dev  # 🔹 Usamos nodemon para hot reload
-    networks:
-      - app-network
+#   backend:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile.dev  # 🔹 Usamos un Dockerfile especial para desarrollo
+#     container_name: nest_leadcenter
+#     restart: always
+#     depends_on:
+#       - db
+#     ports:
+#       - "3000:3000"
+#     environment:
+#       NODE_ENV: development
+#       MONGO_URI: "mongodb://db:27017/leadcenter"
+#       PORT: "3000"
+#     volumes:
+#       - .:/app  # 🔹 Montamos el código fuente para ver cambios sin reconstruir
+#       - /app/node_modules
+#     command: npm run start:dev  # 🔹 Usamos nodemon para hot reload
+#     networks:
+#       - app-network
 
-volumes:
-  mongo-data:
+# volumes:
+#   mongo-data:
 
-networks:
-  app-network:
+# networks:
+#   app-network:
