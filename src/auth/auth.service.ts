@@ -14,14 +14,12 @@ import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-
   constructor(
     private configService: ConfigService,
     private tenantConnectionService: TenantConnectionService,
     private userService: UsersService,
     private jwtService: JwtService,
-  ) { }
-
+  ) {}
 
   async login(loginUserdto: LoginUserDto) {
     //Find if user exists by email
@@ -36,14 +34,24 @@ export class AuthService {
       throw new UnauthorizedException('Wrong credentials');
     }
     //Fetch tenant specific secret key
-    const secretKey = await this.fetchAccessTokenSecretSigningKey(user.tenantId);
+    const secretKey = await this.fetchAccessTokenSecretSigningKey(
+      user.tenantId,
+    );
     //Generate JWT access token
     const accessToken = await this.jwtService.sign(
       { userId: user.id },
       { secret: secretKey, expiresIn: '10h' },
     );
 
-    return { accessToken, tenantId: user.tenantId };
+    return {
+      accessToken,
+      tenantId: user.tenantId,
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      lastName: user.lastName,
+      isActive: user.isActive,
+    };
   }
 
   async createSecretKeyForNewTenant(tenantId: string) {
@@ -56,10 +64,13 @@ export class AuthService {
       this.configService.get(`security.encryptionSecretKey`),
     );
     //Get access to the tenant specific model
-    const secrestModel = await this.tenantConnectionService.getTenantModel({
-      name: 'Secret',
-      schema: SecretSchema
-    }, tenantId);
+    const secrestModel = await this.tenantConnectionService.getTenantModel(
+      {
+        name: 'Secret',
+        schema: SecretSchema,
+      },
+      tenantId,
+    );
     //Store the encrypted secret key
     await secrestModel.create({ jwtSecret: encryptedSecret });
   }
@@ -68,7 +79,7 @@ export class AuthService {
     const secretModel = await this.tenantConnectionService.getTenantModel(
       {
         name: 'Secret',
-        schema: SecretSchema
+        schema: SecretSchema,
       },
       tenantId,
     );
@@ -80,5 +91,4 @@ export class AuthService {
     );
     return secretKey;
   }
-
 }
